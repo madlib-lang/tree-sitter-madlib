@@ -1,0 +1,31 @@
+{
+  "name": "tree-sitter-madlib",
+  "version": "0.0.1",
+  "description": "tree-sitter x madlib",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/madlib-lang/tree-sitter-madlib.git"
+  },
+  "keywords": [
+    "neovim",
+    "madlib",
+    "lsp",
+    "treesitter"
+  ],
+  "author": "Brekk Bockrath",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/madlib-lang/tree-sitter-madlib/issues"
+  },
+  "homepage": "https://github.com/madlib-lang/tree-sitter-madlib#readme",
+  "dependencies": {
+    "nan": "^2.19.0"
+  },
+  "devDependencies": {
+    "tree-sitter-cli": "^0.22.6"
+  }
+}
