@@ -1,6 +1,11 @@
-const commaSep1 = (rule) => seq(rule, repeat(seq(",", rule)));
+/**
+ * @file Madlib grammar for tree-sitter
+ * @author Brekk Bockrath <brekk@brekkbockrath.com>
+ * @license MIT
+ */
 
-const commaSep = (rule) => optional(commaSep1(rule));
+/// <reference types="tree-sitter-cli/dsl" />
+// @ts-check
 
 module.exports = grammar({
   name: "madlib",
@@ -8,16 +13,18 @@ module.exports = grammar({
   externals: ($) => [
     $._template_chars,
     $._ternary_qmark,
+    $.html_comment,
     "||",
     // We use escape sequence and regex pattern to tell the scanner if we're currently inside a string or template string, in which case
     // it should NOT parse html comments.
     $.escape_sequence,
+    $.regex_pattern,
   ],
 
   extras: ($) => [
     $.comment,
-    // ???
-    ///[\s\p{Zs}\uFEFF\u2028\u2029\u2060\u200B]/,
+    $.html_comment,
+    /[\s\p{Zs}\uFEFF\u2028\u2029\u2060\u200B]/,
   ],
 
   supertypes: ($) => [
@@ -32,7 +39,6 @@ module.exports = grammar({
     $._call_signature,
     $._formal_parameter,
     $._expressions,
-    //$._identifier,
     $._reserved_identifier,
     $._jsx_attribute,
     $._jsx_element_name,
@@ -48,11 +54,9 @@ module.exports = grammar({
     [
       "member",
       "call",
-      "type_union",
       "unary_void",
       "binary_exp",
       "binary_times",
-      "binary_concat",
       "binary_plus",
       "binary_shift",
       "binary_compare",
@@ -68,31 +72,36 @@ module.exports = grammar({
       $.arrow_function,
     ],
     ["assign", $.primary_expression],
-    ["member", "call", $.expression],
+    ["member", "new", "call", $.expression],
     ["declaration", "literal"],
     [$.primary_expression, $.statement_block, "record"],
-    [$.import_statement, $.import],
     [$.export_statement, $.primary_expression],
-    [$.lexical_declaration, $.primary_expression],
+    [$.import_statement, $.primary_expression],
   ],
 
   conflicts: ($) => [
     [$.primary_expression, $._property_name],
     [$.primary_expression, $._property_name, $.arrow_function],
     [$.primary_expression, $.arrow_function],
+    [$.primary_expression, $.method_definition],
     [$.primary_expression, $.rest_pattern],
     [$.primary_expression, $.pattern],
+    [$.primary_expression, $.function_expression],
+    [$.primary_expression, $.variable_declarator],
+    [$.statement, $.sequence_expression],
+    [$.primary_expression, $.variable_declarator, $.function_expression],
     [$.list, $.list_pattern],
     [$.record, $.record_pattern],
     [$.assignment_expression, $.pattern],
     [$.assignment_expression, $.record_assignment_pattern],
     [$.binary_expression, $._initializer],
+    [$.return_statement],
   ],
 
   word: ($) => $.identifier,
 
   rules: {
-    program: ($) => repeat($.statement),
+    program: ($) => seq(repeat($.statement)),
 
     //
     // Export declarations
@@ -100,7 +109,14 @@ module.exports = grammar({
 
     export_statement: ($) =>
       choice(
-        seq("export", choice($.export_clause)),
+        seq(
+          "export",
+          choice(
+            seq("*", $._from_clause),
+            seq($.export_clause, $._from_clause),
+            $.export_clause,
+          ),
+        ),
         seq(
           "export",
           choice(
@@ -115,26 +131,27 @@ module.exports = grammar({
           ),
         ),
       ),
+
     export_clause: ($) =>
       seq("{", commaSep($.export_specifier), optional(","), "}"),
 
-    export_specifier: ($) => field("name", $._module_export_name),
+    export_specifier: ($) =>
+      seq(
+        field("name", $._module_export_name),
+        optional(seq("as", field("alias", $._module_export_name))),
+      ),
 
     _module_export_name: ($) => choice($.identifier, $.string),
 
-    declaration: ($) => choice($.function_declaration, $.lexical_declaration),
+    declaration: ($) => $.variable_declarator,
 
     //
     // Import declarations
     //
 
-    import: (_) => token("import"),
+    //import: (_) => token("import"),
 
-    import_statement: ($) =>
-      seq(
-        "import",
-        choice(seq($.import_clause, $._from_clause), field("source", $.string)),
-      ),
+    import_statement: ($) => seq("import", $.import_clause, $._from_clause),
 
     import_clause: ($) =>
       choice(
@@ -147,8 +164,7 @@ module.exports = grammar({
     named_imports: ($) =>
       seq("{", commaSep($.import_specifier), optional(","), "}"),
 
-    import_specifier: ($) =>
-      choice(field("name", $.identifier), field("name", $._module_export_name)),
+    import_specifier: ($) => field("name", $.identifier),
 
     //
     // Statements
@@ -158,26 +174,21 @@ module.exports = grammar({
       choice(
         $.export_statement,
         $.import_statement,
-        $.expression_statement,
+        $._expressions,
         $.declaration,
         $.statement_block,
 
         $.if_statement,
         $.while_statement,
-        // $.do_statement,
+        //$.do_statement,
 
         $.return_statement,
       ),
 
-    expression_statement: ($) => seq($._expressions),
-
-    lexical_declaration: ($) => $.variable_declarator,
+    //variable_declaration: ($) => seq("var", commaSep1($.variable_declarator)),
 
     variable_declarator: ($) =>
-      seq(
-        field("name", choice($.identifier, $._destructuring_pattern)),
-        optional($._initializer),
-      ),
+      seq(field("name", $.identifier), optional($._initializer)),
 
     statement_block: ($) => prec.right(seq("{", repeat($.statement), "}")),
 
@@ -228,7 +239,7 @@ module.exports = grammar({
         $.primary_expression,
         $._jsx_element,
         $.assignment_expression,
-        $.augmented_assignment_expression,
+        $.explicit_mutation_operator,
         $.unary_expression,
         $.binary_expression,
         $.ternary_expression,
@@ -236,21 +247,21 @@ module.exports = grammar({
 
     primary_expression: ($) =>
       choice(
+        $.subscript_expression,
         $.member_expression,
         $.parenthesized_expression,
-        //$._identifier,
+        $.identifier,
         alias($._reserved_identifier, $.identifier),
         $.number,
         $.string,
         $.template_string,
-        //$.regex,
+        $.regex,
         $.true,
         $.false,
         $.record,
         $.list,
         $.function_expression,
         $.arrow_function,
-        $.meta_property,
         $.call_expression,
       ),
 
@@ -264,6 +275,7 @@ module.exports = grammar({
               choice(
                 $.pair,
                 $.spread_element,
+                $.method_definition,
                 alias(
                   choice($.identifier, $._reserved_identifier),
                   $.shorthand_property_identifier,
@@ -475,19 +487,8 @@ module.exports = grammar({
         ),
       ),
 
-    function_declaration: ($) =>
-      prec.right(
-        "declaration",
-        seq(
-          field("name", $.identifier),
-          $._call_signature,
-          field("body", $.statement_block),
-        ),
-      ),
-
     arrow_function: ($) =>
       seq(
-        optional("async"),
         choice(
           field(
             "parameter",
@@ -508,7 +509,7 @@ module.exports = grammar({
         prec(
           "call",
           seq(
-            field("function", choice($.expression, $.import)),
+            field("function", $.expression),
             field("arguments", choice($.arguments, $.template_string)),
           ),
         ),
@@ -525,19 +526,27 @@ module.exports = grammar({
       prec(
         "member",
         seq(
-          field("record", choice($.expression, $.primary_expression, $.import)),
-          field(
-            "property",
+          field("record", choice($.expression, $.primary_expression)),
+          ".",
+          field("property", alias($.identifier, $.property_identifier)),
+        ),
+      ),
 
-            alias($.identifier, $.property_identifier),
-          ),
+    subscript_expression: ($) =>
+      prec.right(
+        "member",
+        seq(
+          field("record", choice($.expression, $.primary_expression)),
+          "[",
+          field("index", $._expressions),
+          "]",
         ),
       ),
 
     _lhs_expression: ($) =>
       choice(
         $.member_expression,
-        //$._identifier,
+        $.subscript_expression,
         alias($._reserved_identifier, $.identifier),
         $._destructuring_pattern,
       ),
@@ -555,12 +564,13 @@ module.exports = grammar({
     _augmented_assignment_lhs: ($) =>
       choice(
         $.member_expression,
+        $.subscript_expression,
         alias($._reserved_identifier, $.identifier),
         $.identifier,
         $.parenthesized_expression,
       ),
 
-    augmented_assignment_expression: ($) =>
+    explicit_mutation_operator: ($) =>
       prec.right(
         "assign",
         seq(
@@ -596,15 +606,15 @@ module.exports = grammar({
           [">>", "binary_shift"],
           [">>>", "binary_shift"],
           ["<<", "binary_shift"],
-          //["&", "bitwise_and"],
-          //["^", "bitwise_xor"],
-          ["|", "type_union"],
+          ["&", "bitwise_and"],
+          ["^", "bitwise_xor"],
+          ["|", "bitwise_or"],
           ["+", "binary_plus"],
           ["-", "binary_plus"],
           ["*", "binary_times"],
           ["/", "binary_times"],
           ["%", "binary_times"],
-          ["++", "binary_concat"],
+          ["**", "binary_exp", "right"],
           ["<", "binary_relation"],
           ["<=", "binary_relation"],
           ["==", "binary_equality"],
@@ -714,11 +724,44 @@ module.exports = grammar({
 
     template_substitution: ($) => seq("${", $._expressions, "}"),
 
+    regex: ($) =>
+      seq(
+        "/",
+        field("pattern", $.regex_pattern),
+        token.immediate(prec(1, "/")),
+        optional(field("flags", $.regex_flags)),
+      ),
+
+    regex_pattern: (_) =>
+      token.immediate(
+        prec(
+          -1,
+          repeat1(
+            choice(
+              seq(
+                "[",
+                repeat(
+                  choice(
+                    seq("\\", /./), // escaped character
+                    /[^\]\n\\]/, // any character besides ']' or '\n'
+                  ),
+                ),
+                "]",
+              ), // square-bracket-delimited character class
+              seq("\\", /./), // escaped character
+              /[^/\\\[\n]/, // any character besides '[', '\', '/', '\n'
+            ),
+          ),
+        ),
+      ),
+
+    regex_flags: (_) => token.immediate(/[a-z]+/),
+
     number: (_) => {
       const hexLiteral = seq(choice("0x", "0X"), /[\da-fA-F](_?[\da-fA-F])*/);
 
       const decimalDigits = /\d(_?\d)*/;
-      const signedInteger = seq(optional(choice("-", "+")), decimalDigits);
+      const signedInteger = seq(optional("-"), decimalDigits);
       const exponentPart = seq(choice("e", "E"), signedInteger);
 
       const binaryLiteral = seq(choice("0b", "0B"), /[0-1](_?[0-1])*/);
@@ -735,11 +778,7 @@ module.exports = grammar({
         seq(
           optional("0"),
           /[1-9]/,
-          optional(decimalDigits),
-          optional("_s"),
-          optional("_i"),
-          optional("_b"),
-          optional("_f"),
+          optional(seq(optional("_"), decimalDigits)),
         ),
       );
 
@@ -776,8 +815,6 @@ module.exports = grammar({
       return token(seq(alpha, repeat(alphanumeric)));
     },
 
-    meta_property: (_) => seq("new", ".", "target"),
-
     true: (_) => "true",
     false: (_) => "false",
     unit: (_) => "{}",
@@ -806,6 +843,13 @@ module.exports = grammar({
 
     rest_pattern: ($) => prec.right(seq("...", $._lhs_expression)),
 
+    method_definition: ($) =>
+      seq(
+        field("name", $._property_name),
+        field("parameters", $.formal_parameters),
+        field("body", $.statement_block),
+      ),
+
     pair: ($) =>
       seq(field("key", $._property_name), ":", field("value", $.expression)),
 
@@ -826,7 +870,30 @@ module.exports = grammar({
         $.number,
       ),
 
-    _reserved_identifier: (_) =>
-      choice("type", "alias", "where", "return", "export", "import", "do"),
+    _reserved_identifier: (_) => choice("export", "import", "where"),
   },
 });
+
+/**
+ * Creates a rule to match one or more of the rules separated by a comma
+ *
+ * @param {Rule} rule
+ *
+ * @return {SeqRule}
+ *
+ */
+function commaSep1(rule) {
+  return seq(rule, repeat(seq(",", rule)));
+}
+
+/**
+ * Creates a rule to optionally match one or more of the rules separated by a comma
+ *
+ * @param {Rule} rule
+ *
+ * @return {ChoiceRule}
+ *
+ */
+function commaSep(rule) {
+  return optional(commaSep1(rule));
+}
