@@ -1,6 +1,5 @@
-VERSION := 0.0.1
-
-LANGUAGE_NAME := tree-sitter-javascript
+VERSION := 0.27.1
+LANGUAGE_NAME := tree-sitter-madlib
 
 # repository
 SRC_DIR := src

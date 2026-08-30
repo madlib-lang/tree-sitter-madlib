@@ -1,0 +1,41 @@
+{
+  "$schema": "https://tree-sitter.github.io/tree-sitter/assets/schemas/config.schema.json",
+  "grammars": [
+    {
+      "name": "madlib",
+      "camelcase": "Madlib",
+      "title": "Madlib",
+      "scope": "source.madlib",
+      "file-types": ["mad"],
+      "injection-regex": "^madlib$",
+      "class-name": "TreeSitterMadlib",
+      "external-files": ["src/scanner.c"]
+    }
+  ],
+  "metadata": {
+    "version": "0.27.1",
+    "license": "MIT",
+    "description": "Madlib language parser",
+    "authors": [
+      {
+        "name": "Brekk Bockrath",
+        "email": "brekk@brekkbockrath.com",
+        "url": "brekk.is"
+      }
+    ],
+    "links": {
+      "repository": "https://github.com/madlib/madlib-lang",
+      "funding": ""
+    }
+  },
+  "bindings": {
+    "c": true,
+    "go": true,
+    "java": false,
+    "node": true,
+    "python": true,
+    "rust": true,
+    "swift": true,
+    "zig": false
+  }
+}
