@@ -1,0 +1,5 @@
+---
+triple:          'arm64-apple-darwin'
+binary-path:     '/Users/brekk/madness/tree-sitter-madlib/madlib.dylib'
+relocations:     []
+...

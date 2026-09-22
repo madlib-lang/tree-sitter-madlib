@@ -1,0 +1,19 @@
+==================
+block with multiple statements
+==================
+
+f = (x) => {
+  a
+  b
+}
+
+---------------------
+
+(source_file
+  (assignment name: (identifier)
+    value: (abstraction
+      parameters: (parameters (identifier))
+      body: (block
+        (_expression (identifier))
+        (_expression (identifier))))))
+

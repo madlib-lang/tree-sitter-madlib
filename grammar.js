@@ -1,9 +1,3 @@
-/**
- * @file Madlib grammar for tree-sitter
- * @author Brekk Bockrath <brekk@brekkbockrath.com>
- * @license MIT
- */
-
 /// <reference types="tree-sitter-cli/dsl" />
 // @ts-check
 
@@ -22,21 +16,92 @@ const PREC = {
   call: 12,
 };
 
+function braced($, rule) {
+  return seq(
+    "{",
+    optional($._newlines),
+    repeat(seq(rule, optional($._newlines))),
+    "}",
+  );
+}
+function sep1(sep, rule) {
+  return seq(rule, repeat(seq(sep, rule)));
+}
+function commaSep(rule) {
+  return seq(rule, repeat(seq(",", rule)));
+}
+// empty-allowed, trailing-comma-allowed comma list
+function commaList(rule) {
+  return optional(seq(commaSep(rule), optional(",")));
+}
+
+function pipeSep(rule) {
+  return seq(rule, repeat(seq("|", rule)));
+}
+
 module.exports = grammar({
   name: "madlib",
 
-  extras: ($) => [/\s/, $.line_comment, $.block_comment],
+  extras: ($) => [/[ \t\r\f\v\n]/, $.line_comment, $.block_comment],
+
+  externals: ($) => [$._newline],
+
   word: ($) => $.identifier,
 
   supertypes: ($) => [$._expression, $._pattern, $._type, $._declaration],
 
   conflicts: ($) => [
-    [$.record, $.block], // `{` is ambiguous: record literal vs. block body
-    [$.record_type, $.record],
+    [$.record, $.block],
+    [$.type_parameters, $._type_atom],
+    [$.type_application, $._type_atom],
+    [$._expression, $._pattern],
+    [$._expression, $.constructor_pattern],
+    [$.type_constraints, $._type],
+    [$.record, $.record_pattern],
+    [$.list, $.list_pattern],
+    [$.tuple, $.tuple_pattern],
+    [$.interface_body, $.record_type],
+    [$.instance_body, $.record_type],
+    [$._expression, $.record],
+    [$.export_type_reference, $.type_declaration],
+    [$.derive_declaration],
+    [$.constructor],
+    [$.type_annotation, $.function_type],
+    [$.alias_declaration, $.function_type],
   ],
 
   rules: {
-    source_file: ($) => repeat($._declaration),
+    source_file: ($) =>
+      seq(
+        optional($._newlines),
+        repeat(seq($._declaration, optional($._newlines))),
+      ),
+    _newlines: ($) => repeat1($._newline),
+    block: ($) => braced($, $._statement),
+    interface_body: ($) => braced($, $.type_annotation),
+    instance_body: ($) => braced($, $.assignment),
+    do_expression: ($) => seq("do", braced($, choice($.bind, $._statement))),
+    where_expression: ($) =>
+      seq(
+        "where",
+        "(",
+        field("subject", $._expression),
+        ")",
+        braced($, $.where_arm),
+      ),
+    // export init = extern "madlib__array__initWithCapacity"
+    extern_expression: ($) => seq("extern", field("symbol", $.string)),
+
+    // derive Comparable DateTime
+    derive_declaration: ($) =>
+      seq(
+        "derive",
+        field("interface", $.type_identifier),
+        repeat1(field("argument", $._type_atom)),
+      ),
+
+    // test("…", () => …)  at top level, pervasive in .spec.mad
+    expression_statement: ($) => $._expression,
 
     _declaration: ($) =>
       choice(
@@ -45,17 +110,34 @@ module.exports = grammar({
         $.alias_declaration,
         $.interface_declaration,
         $.instance_declaration,
+        $.derive_declaration,
         $.type_annotation,
         $.assignment,
         $.export_declaration,
         $.target_block,
+        $.expression_statement,
       ),
-
     export_declaration: ($) =>
-      seq("export", choice($.assignment, $.type_annotation)),
+      seq(
+        "export",
+        choice(
+          $.assignment,
+          $.type_annotation,
+          $.type_declaration,
+          $.alias_declaration,
+          $.interface_declaration,
+          $.instance_declaration,
+          $.export_type_reference, // export type Comparison
+          $.identifier, // export eq / export gt / export le
+          $.type_identifier, // export LT / export EQ / export GT
+        ),
+      ),
+    export_type_reference: ($) => seq("type", field("name", $.type_identifier)),
 
     // ---------- imports ----------
-    // import IO from "IO" | import { fn } from "./File" | import type { Maybe } from "Maybe"
+    // import IO from "IO"
+    // import { fn } from "./File"
+    // import type { Maybe } from "Maybe"
     import_declaration: ($) =>
       seq(
         "import",
@@ -65,7 +147,24 @@ module.exports = grammar({
         field("path", $.string),
       ),
     namespace: ($) => $.type_identifier,
-    import_list: ($) => seq("{", commaSep($.identifier), optional(","), "}"),
+
+    import_list: ($) =>
+      seq("{", commaList(choice($.identifier, $.type_identifier)), "}"),
+
+    // ---------- shared pieces ----------
+    type_parameters: ($) => repeat1(field("parameter", $.identifier)),
+
+    // Constraints reuse `type_application` -- byte-identical productions, so
+    // keeping a separate `constraint` rule would only cost GLR splits.
+    // The `constraints` field on the parent preserves the distinction.
+    type_constraints: ($) =>
+      seq(
+        choice(
+          $.type_application,
+          seq("(", commaSep($.type_application), optional(","), ")"),
+        ),
+        "=>",
+      ),
 
     // ---------- ADTs ----------
     // type Color = Hex(String) | RGB(Integer, Integer, Integer)
@@ -73,14 +172,14 @@ module.exports = grammar({
       seq(
         "type",
         field("name", $.type_identifier),
-        repeat(field("parameter", $.identifier)),
+        optional(field("parameters", $.type_parameters)),
         "=",
         pipeSep($.constructor),
       ),
     constructor: ($) =>
       seq(
         field("name", $.type_identifier),
-        optional(seq("(", commaSep($._type), ")")),
+        optional(seq("(", commaList($._type), ")")),
       ),
 
     // ---------- records / aliases ----------
@@ -89,74 +188,82 @@ module.exports = grammar({
       seq(
         "alias",
         field("name", $.type_identifier),
-        repeat(field("parameter", $.identifier)),
+        optional(field("parameters", $.type_parameters)),
         "=",
         field("body", $._type),
       ),
-    record_type: ($) =>
-      seq(
-        "{",
-        commaSep(choice($.field_type, $.type_spread)),
-        optional(","),
-        "}",
-      ),
-    field_type: ($) =>
-      seq(field("name", $.identifier), "::", field("type", $._type)),
-    type_spread: ($) => seq("...", $.type_identifier), // only one spread is legal — enforce in a lint, not the grammar
+
+    // Only one spread is legal -- enforce in a lint, not the grammar.
+    type_spread: ($) => seq("...", $.type_identifier),
 
     // ---------- interfaces ----------
     interface_declaration: ($) =>
       seq(
         "interface",
-        optional($.type_constraints),
+        optional(field("constraints", $.type_constraints)),
         field("name", $.type_identifier),
-        repeat(field("parameter", $.identifier)),
-        "{",
-        repeat($.type_annotation),
-        "}",
+        optional(field("parameters", $.type_parameters)),
+        field("body", $.interface_body),
       ),
+
     instance_declaration: ($) =>
       seq(
         "instance",
-        optional($.type_constraints),
+        optional(field("constraints", $.type_constraints)),
         field("name", $.type_identifier),
-        repeat(field("type", $._type_atom)),
-        "{",
-        repeat($.assignment),
-        "}",
+        repeat(field("argument", $._type_atom)),
+        field("body", $.instance_body),
       ),
-    type_constraints: ($) =>
-      seq(choice($.constraint, seq("(", commaSep($.constraint), ")")), "=>"),
-    constraint: ($) => seq($.type_identifier, repeat1($._type_atom)),
 
     // ---------- signatures ----------
     // modX :: (a -> a) -> Maybe x -> Maybe x
+
     type_annotation: ($) =>
       seq(
-        field("name", $.identifier),
+        field("name", choice($.identifier, $.type_identifier)),
         "::",
-        optional($.type_constraints),
+        optional(field("constraints", $.type_constraints)),
         field("type", $._type),
       ),
 
     _type: ($) => choice($.function_type, $.type_application, $._type_atom),
-    function_type: ($) => prec.right(seq($._type, "->", $._type)),
+    function_type: ($) =>
+      prec.right(seq($._type, optional($._newlines), "->", $._type)),
+
     type_application: ($) =>
-      prec.left(seq($.type_identifier, repeat1($._type_atom))),
+      prec.left(
+        seq(
+          field("name", choice($.type_identifier, $.identifier)),
+          repeat1(field("argument", $._type_atom)),
+        ),
+      ),
+
+    qualified_type: ($) =>
+      seq(
+        field("module", $.type_identifier),
+        token.immediate("."),
+        field("name", $.type_identifier),
+      ),
+
     _type_atom: ($) =>
       choice(
         $.type_identifier,
+        $.qualified_type, // <-- add
         $.identifier,
         $.record_type,
         $.tuple_type,
         $.parenthesized_type,
       ),
     parenthesized_type: ($) => seq("(", $._type, ")"),
-    tuple_type: ($) => seq("#[", commaSep($._type), "]"),
 
     // ---------- bindings ----------
+
     assignment: ($) =>
-      seq(field("name", $.identifier), "=", field("value", $._expression)),
+      seq(
+        field("name", choice($.identifier, $.type_identifier)),
+        "=",
+        field("value", $._expression),
+      ),
 
     // ---------- expressions ----------
     _expression: ($) =>
@@ -179,11 +286,11 @@ module.exports = grammar({
         $.char,
         $.number,
         $.boolean,
-        $.unit,
         $.identifier,
         $.type_identifier,
         $.placeholder,
         $.parenthesized_expression,
+        $.extern_expression,
         $.foreign_fence,
       ),
 
@@ -198,11 +305,12 @@ module.exports = grammar({
           field("body", choice($.block, $._expression)),
         ),
       ),
-    parameters: ($) => seq("(", commaSep($._pattern), ")"),
-    block: ($) => seq("{", repeat($._statement), "}"),
+    parameters: ($) => seq("(", commaList($._pattern), ")"),
+
     _statement: ($) =>
       choice(
         $.assignment,
+        $.mutation,
         $.return_statement,
         $.type_annotation,
         $._expression,
@@ -215,13 +323,12 @@ module.exports = grammar({
         seq(
           field("function", $._expression),
           "(",
-          optional(commaSep(choice($._expression, $.placeholder))),
+          commaList($._expression),
           ")",
         ),
       ),
     placeholder: (_) => "$", // division($, 5)
 
-    // if/else is an expression and `else` is mandatory
     if_expression: ($) =>
       prec.right(
         seq(
@@ -230,27 +337,23 @@ module.exports = grammar({
           field("condition", $._expression),
           ")",
           field("consequence", choice($.block, $._expression)),
-          "else",
-          field("alternative", choice($.block, $._expression, $.if_expression)),
+          optional(
+            seq("else", field("alternative", choice($.block, $._expression))),
+          ),
         ),
       ),
     ternary_expression: ($) =>
       prec.right(
         PREC.ternary,
-        seq($._expression, "?", $._expression, ":", $._expression),
+        seq(
+          field("condition", $._expression),
+          "?",
+          field("consequence", $._expression),
+          ":",
+          field("alternative", $._expression),
+        ),
       ),
 
-    // where(d) { Mon => Tue \n Sun => Mon }
-    where_expression: ($) =>
-      seq(
-        "where",
-        "(",
-        field("subject", $._expression),
-        ")",
-        "{",
-        repeat1($.where_arm),
-        "}",
-      ),
     where_arm: ($) =>
       seq(
         field("pattern", $._pattern),
@@ -259,8 +362,6 @@ module.exports = grammar({
       ),
 
     // do { _ <- Test.assertEquals(a, b) \n return {} }
-    do_expression: ($) =>
-      seq("do", "{", repeat(choice($.bind, $._statement)), "}"),
     bind: ($) =>
       seq(field("name", $._pattern), "<-", field("value", $._expression)),
 
@@ -294,30 +395,60 @@ module.exports = grammar({
         ),
       ),
     unary_expression: ($) =>
-      prec(PREC.unary, seq(field("operator", choice("!", "-")), $._expression)),
+      prec(
+        PREC.unary,
+        seq(
+          field("operator", choice("!", "-")),
+          field("argument", $._expression),
+        ),
+      ),
+    mutation: ($) =>
+      seq(
+        field("name", choice($.identifier, $.type_identifier)),
+        ":=",
+        field("value", $._expression),
+      ),
 
     // person.name   vs.   pipe(.name, String.toLower)
+    // The access dot is `token.immediate` so it cannot follow whitespace;
+    // that is what keeps it distinct from the shorthand.
+
     access: ($) =>
-      prec(PREC.access, seq($._expression, ".", field("field", $.identifier))),
-    access_shorthand: ($) => seq(".", field("field", $.identifier)),
+      prec(
+        PREC.access,
+        seq(
+          $._expression,
+          token.immediate("."),
+          field("field", choice($.identifier, $.type_identifier)),
+        ),
+      ),
+    access_shorthand: ($) =>
+      seq(".", field("field", choice($.identifier, $.type_identifier))),
+
+    // `{}` is covered here rather than by a separate `unit` rule -- a dedicated
+    // token would win the longest-match race and break every empty record/block.
 
     record: ($) =>
+      prec.dynamic(
+        -1,
+        seq("{", commaList(choice($.field, $.spread, $.identifier)), "}"),
+      ),
+    record_type: ($) =>
+      seq("{", commaList(choice($.type_annotation, $.type_spread)), "}"),
+    record_pattern: ($) =>
       seq(
         "{",
-        commaSep(choice($.field, $.spread, $.identifier)),
-        optional(","),
+        commaList(choice($.field_pattern, $.identifier, $.spread_pattern)),
         "}",
       ),
+
     field: ($) =>
       seq(field("name", $.identifier), ":", field("value", $._expression)),
     spread: ($) => seq("...", $._expression),
-    list: ($) =>
-      seq(
-        "[",
-        optional(seq(commaSep(choice($._expression, $.spread)), optional(","))),
-        "]",
-      ),
-    tuple: ($) => seq("#[", commaSep($._expression), "]"),
+
+    tuple: ($) => seq("#[", commaList($._expression), "]"),
+    tuple_type: ($) => seq("#[", commaList($._type), "]"),
+    tuple_pattern: ($) => seq("#[", commaList($._pattern), "]"),
 
     // ---------- patterns ----------
     _pattern: ($) =>
@@ -336,27 +467,41 @@ module.exports = grammar({
       ),
     wildcard: (_) => "_",
     constructor_pattern: ($) =>
-      seq(field("name", $.type_identifier), "(", commaSep($._pattern), ")"),
-    record_pattern: ($) =>
-      seq(
-        "{",
-        commaSep(choice($.field_pattern, $.identifier, $.spread_pattern)),
-        "}",
-      ),
+      seq(field("name", $.type_identifier), "(", commaList($._pattern), ")"),
+
     field_pattern: ($) =>
       seq(field("name", $.identifier), ":", field("pattern", $._pattern)),
     spread_pattern: ($) => seq("...", $._pattern),
+    list: ($) => seq("[", commaList(choice($._expression, $.spread)), "]"),
     list_pattern: ($) =>
-      seq("[", optional(commaSep(choice($._pattern, $.spread_pattern))), "]"),
-    tuple_pattern: ($) => seq("#[", commaSep($._pattern), "]"),
+      seq("[", commaList(choice($._pattern, $.spread_pattern)), "]"),
 
     // ---------- FFI ----------
+
     target_block: ($) =>
       seq(
         "#iftarget",
         field("target", $.identifier),
-        repeat($._declaration),
-        "#endiftarget", // TODO: verify terminator token
+        optional($._newlines),
+        repeat(seq($._declaration, optional($._newlines))),
+        repeat($.target_alternative),
+        optional($.target_else),
+        "#endif",
+      ),
+
+    target_alternative: ($) =>
+      seq(
+        "#elseif",
+        field("target", $.identifier),
+        optional($._newlines),
+        repeat(seq($._declaration, optional($._newlines))),
+      ),
+
+    target_else: ($) =>
+      seq(
+        "#else",
+        optional($._newlines),
+        repeat(seq($._declaration, optional($._newlines))),
       ),
     foreign_fence: (_) => token(seq("#-", /[^-]*(-[^#][^-]*)*/, "-#")),
 
@@ -365,7 +510,6 @@ module.exports = grammar({
     type_identifier: (_) => /[A-Z]\w*/,
     number: (_) => /-?\d+(\.\d+)?([eE][+-]?\d+)?/,
     boolean: (_) => choice("true", "false"),
-    unit: (_) => "{}",
     char: (_) => /'([^'\\]|\\.)'/,
     string: (_) => /"([^"\\]|\\.)*"/,
 
@@ -383,10 +527,3 @@ module.exports = grammar({
     block_comment: (_) => token(seq("/*", /[^*]*\*+([^/*][^*]*\*+)*/, "/")),
   },
 });
-
-function commaSep(rule) {
-  return seq(rule, repeat(seq(",", rule)));
-}
-function pipeSep(rule) {
-  return seq(rule, repeat(seq("|", rule)));
-}

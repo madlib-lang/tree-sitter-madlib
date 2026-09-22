@@ -1,0 +1,28 @@
+==================
+block body wins over record shorthand
+==================
+
+f = (x) => { x }
+
+---------------------
+
+(source_file
+  (assignment name: (identifier)
+    value: (abstraction
+      parameters: (parameters (identifier))
+      body: (block (_expression (identifier))))))
+
+==================
+parens force record reading
+==================
+
+f = (x) => ({ x })
+
+---------------------
+
+(source_file
+  (assignment name: (identifier)
+    value: (abstraction
+      parameters: (parameters (identifier))
+      body: (parenthesized_expression (record (identifier))))))
+

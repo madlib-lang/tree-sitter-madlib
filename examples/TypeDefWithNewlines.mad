@@ -1,0 +1,11 @@
+manyParameters :: String
+  -> Integer
+  -> List Integer
+  -> String
+  -> String
+  -> Integer
+  -> String
+  -> String
+  -> String
+  -> String
+manyParameters = (a, b, c, d, e, f, g, h, i) => ""
