@@ -24,9 +24,6 @@ function braced($, rule) {
     "}",
   );
 }
-function sep1(sep, rule) {
-  return seq(rule, repeat(seq(sep, rule)));
-}
 function commaSep(rule) {
   return seq(rule, repeat(seq(",", rule)));
 }
@@ -66,8 +63,7 @@ module.exports = grammar({
     [$.export_type_reference, $.type_declaration],
     [$.derive_declaration],
     [$.constructor],
-    [$.type_annotation, $.function_type],
-    [$.alias_declaration, $.function_type],
+    [$._type, $.function_type],
   ],
 
   rules: {
@@ -138,6 +134,7 @@ module.exports = grammar({
     // import IO from "IO"
     // import { fn } from "./File"
     // import type { Maybe } from "Maybe"
+
     import_declaration: ($) =>
       seq(
         "import",
@@ -228,7 +225,12 @@ module.exports = grammar({
 
     _type: ($) => choice($.function_type, $.type_application, $._type_atom),
     function_type: ($) =>
-      prec.right(seq($._type, optional($._newlines), "->", $._type)),
+      seq(
+        field("from", choice($.type_application, $._type_atom)),
+        optional($._newlines),
+        "->",
+        field("to", $._type),
+      ),
 
     type_application: ($) =>
       prec.left(

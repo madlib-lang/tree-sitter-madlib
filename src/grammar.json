@@ -1098,37 +1098,50 @@
       ]
     },
     "function_type": {
-      "type": "PREC_RIGHT",
-      "value": 0,
-      "content": {
-        "type": "SEQ",
-        "members": [
-          {
-            "type": "SYMBOL",
-            "name": "_type"
-          },
-          {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "FIELD",
+          "name": "from",
+          "content": {
             "type": "CHOICE",
             "members": [
               {
                 "type": "SYMBOL",
-                "name": "_newlines"
+                "name": "type_application"
               },
               {
-                "type": "BLANK"
+                "type": "SYMBOL",
+                "name": "_type_atom"
               }
             ]
-          },
-          {
-            "type": "STRING",
-            "value": "->"
-          },
-          {
+          }
+        },
+        {
+          "type": "CHOICE",
+          "members": [
+            {
+              "type": "SYMBOL",
+              "name": "_newlines"
+            },
+            {
+              "type": "BLANK"
+            }
+          ]
+        },
+        {
+          "type": "STRING",
+          "value": "->"
+        },
+        {
+          "type": "FIELD",
+          "name": "to",
+          "content": {
             "type": "SYMBOL",
             "name": "_type"
           }
-        ]
-      }
+        }
+      ]
     },
     "type_application": {
       "type": "PREC_LEFT",
@@ -3638,11 +3651,7 @@
       "constructor"
     ],
     [
-      "type_annotation",
-      "function_type"
-    ],
-    [
-      "alias_declaration",
+      "_type",
       "function_type"
     ]
   ],

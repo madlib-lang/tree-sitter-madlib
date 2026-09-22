@@ -847,16 +847,51 @@
   {
     "type": "function_type",
     "named": true,
-    "fields": {},
-    "children": {
-      "multiple": true,
-      "required": true,
-      "types": [
-        {
-          "type": "_type",
-          "named": true
-        }
-      ]
+    "fields": {
+      "from": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "identifier",
+            "named": true
+          },
+          {
+            "type": "parenthesized_type",
+            "named": true
+          },
+          {
+            "type": "qualified_type",
+            "named": true
+          },
+          {
+            "type": "record_type",
+            "named": true
+          },
+          {
+            "type": "tuple_type",
+            "named": true
+          },
+          {
+            "type": "type_application",
+            "named": true
+          },
+          {
+            "type": "type_identifier",
+            "named": true
+          }
+        ]
+      },
+      "to": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "_type",
+            "named": true
+          }
+        ]
+      }
     }
   },
   {
