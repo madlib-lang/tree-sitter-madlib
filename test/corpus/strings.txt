@@ -1,0 +1,22 @@
+===
+Double-quoted string
+===
+
+"string"
+
+---
+
+(source_file
+  (quoted_string))
+
+===
+Single-quoted string
+===
+
+'chars'
+
+---
+
+(source_file
+  (quoted_chars))
+

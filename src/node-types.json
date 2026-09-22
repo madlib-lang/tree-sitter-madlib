@@ -29,6 +29,10 @@
           "named": true
         },
         {
+          "type": "quoted_chars",
+          "named": true
+        },
+        {
           "type": "quoted_string",
           "named": true
         }
@@ -41,7 +45,8 @@
   },
   {
     "type": "block_comment",
-    "named": true
+    "named": true,
+    "extra": true
   },
   {
     "type": "keyword",
@@ -49,10 +54,15 @@
   },
   {
     "type": "line_comment",
-    "named": true
+    "named": true,
+    "extra": true
   },
   {
     "type": "number",
+    "named": true
+  },
+  {
+    "type": "quoted_chars",
     "named": true
   },
   {
