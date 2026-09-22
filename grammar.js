@@ -143,7 +143,8 @@ module.exports = grammar({
         "from",
         field("path", $.string),
       ),
-    namespace: ($) => $.type_identifier,
+
+    namespace: ($) => choice($.type_identifier, $.identifier),
 
     import_list: ($) =>
       seq("{", commaList(choice($.identifier, $.type_identifier)), "}"),

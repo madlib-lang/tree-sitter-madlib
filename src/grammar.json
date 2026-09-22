@@ -554,8 +554,17 @@
       ]
     },
     "namespace": {
-      "type": "SYMBOL",
-      "name": "type_identifier"
+      "type": "CHOICE",
+      "members": [
+        {
+          "type": "SYMBOL",
+          "name": "type_identifier"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "identifier"
+        }
+      ]
     },
     "import_list": {
       "type": "SEQ",
