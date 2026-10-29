@@ -1,0 +1,69 @@
+==================
+assignment: number
+==================
+
+int = 5
+float = 5.5
+short = 5_s
+byte = 5_b
+
+---------------------
+
+(source_file
+  (assignment
+    (identifier)
+    (number))
+  (assignment
+    (identifier)
+    (number))
+  (assignment
+    (identifier)
+    (number))
+  (expression_statement
+    (identifier))
+  (assignment
+    (identifier)
+    (number))
+  (expression_statement
+    (identifier)))
+
+==================
+assignment: string
+==================
+
+x = "yes"
+
+---------------------
+
+(source_file
+  (assignment name: (identifier)
+    value: (string)))
+
+==================
+assignment: char
+==================
+
+x = '\n'
+
+---------------------
+
+(source_file
+  (assignment name: (identifier)
+    value: (char)))
+
+==================
+assignment: boolean
+==================
+
+x = false
+y = true
+
+---------------------
+
+(source_file
+  (assignment
+    (identifier)
+    (boolean))
+  (assignment
+    (identifier)
+    (boolean)))

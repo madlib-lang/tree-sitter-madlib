@@ -10,7 +10,9 @@ f = (x) => { x }
   (assignment name: (identifier)
     value: (abstraction
       parameters: (parameters (identifier))
-      body: (block (_expression (identifier))))))
+      body: (block
+      (identifier))))
+      )
 
 ==================
 parens force record reading

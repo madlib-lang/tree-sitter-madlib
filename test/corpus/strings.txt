@@ -2,21 +2,26 @@
 Double-quoted string
 ===
 
-"string"
+str = "string"
 
 ---
 
 (source_file
-  (quoted_string))
+  (assignment
+    (identifier)
+  (string)))
 
 ===
 Single-quoted string
 ===
 
-'chars'
+chars = 'c'
 
 ---
 
 (source_file
-  (quoted_chars))
-
+  (assignment
+    (identifier)
+    (char)
+  )
+)

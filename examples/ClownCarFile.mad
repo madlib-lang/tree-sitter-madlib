@@ -11,11 +11,9 @@ export writer = (path) => pipe(
   Wish.mapRej(Fn.always(`Unable to write to ${path}`)),
   map(Fn.always(`Wrote to ${path}`)),
 )
-
 write :: String -> Wish String String -> Wish String String
 export write = (path, x) => chain(writer(path))(x)
 export createClownName = (v) => String.replace("(.*)\\.clowncar", "$1.log.mad", v)
-
 writeDynamicName :: String -> Wish String String -> Wish String String
 export writeDynamicName = (src, x) => pipe(
   createClownName,
