@@ -1,0 +1,42 @@
+==================
+named import
+==================
+
+import IO from "IO"
+
+---------------------
+
+(source_file
+  (import_declaration
+    (namespace
+      (type_identifier))
+    (string)))
+
+==================
+explicitly destructured imports
+==================
+
+import { pTrace } from "IO"
+
+---------------------
+
+(source_file
+  (import_declaration
+    (import_list
+      (identifier))
+    (string)))
+
+==================
+explicitly destructured type imports
+==================
+
+import type { Maybe } from "Maybe"
+
+---------------------
+
+(source_file
+  (import_declaration
+    (import_list
+      (type_identifier))
+    (string)))
+
