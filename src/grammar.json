@@ -492,6 +492,10 @@
         },
         {
           "type": "SYMBOL",
+          "name": "export_type_reference"
+        },
+        {
+          "type": "SYMBOL",
           "name": "target_block"
         },
         {

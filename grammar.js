@@ -109,6 +109,7 @@ module.exports = grammar({
         $.type_annotation,
         $.assignment,
         $.export_declaration,
+        $.export_type_reference,
         $.target_block,
         $.expression_statement,
       ),

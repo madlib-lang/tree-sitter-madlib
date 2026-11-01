@@ -1,0 +1,62 @@
+==================
+records with stuff
+==================
+
+myStuff = { drawer: ["junk"], box: ["pen"], clean: false }
+
+---------------------
+
+(source_file
+  (assignment
+    (identifier)
+    (record
+      (field
+        (identifier)
+        (list
+          (string)))
+      (field
+        (identifier)
+        (list
+          (string)))
+      (field
+        (identifier)
+        (boolean)))))
+
+==================
+records with shorthand
+==================
+
+drawer = ["junk"]
+box = ["pen"]
+myStuff = { drawer, box, clean: false }
+
+---------------------
+
+(source_file
+  (assignment
+    (identifier)
+    (list
+      (string)))
+  (assignment
+    (identifier)
+    (list
+      (string)))
+  (assignment
+    (identifier)
+    (record
+      (identifier)
+      (identifier)
+      (field
+        (identifier)
+        (boolean)))))
+
+==================
+record destructuring
+==================
+
+myStuff = { drawer: ["junk"], box: ["pen"], clean: false }
+{ drawer, box } = myStuff
+
+---------------------
+
+(source_file)

@@ -20,6 +20,10 @@
         "named": true
       },
       {
+        "type": "export_type_reference",
+        "named": true
+      },
+      {
         "type": "expression_statement",
         "named": true
       },
@@ -767,6 +771,22 @@
           "named": true
         }
       ]
+    }
+  },
+  {
+    "type": "export_type_reference",
+    "named": true,
+    "fields": {
+      "name": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "type_identifier",
+            "named": true
+          }
+        ]
+      }
     }
   },
   {
