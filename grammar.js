@@ -251,7 +251,7 @@ module.exports = grammar({
     _type_atom: ($) =>
       choice(
         $.type_identifier,
-        $.qualified_type, // <-- add
+        $.qualified_type,
         $.identifier,
         $.record_type,
         $.tuple_type,
@@ -295,9 +295,19 @@ module.exports = grammar({
         $.parenthesized_expression,
         $.extern_expression,
         $.foreign_fence,
+        $.annotated_expression,
       ),
 
     parenthesized_expression: ($) => seq("(", $._expression, ")"),
+    annotated_expression: ($) =>
+      seq(
+        "(",
+        field("expression", $._expression),
+
+        "::",
+        field("type", $._type),
+        ")",
+      ),
 
     // (a, b) => body   |   (Book(_, _, tags)) => body
     abstraction: ($) =>

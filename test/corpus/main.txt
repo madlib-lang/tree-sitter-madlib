@@ -1,0 +1,14 @@
+==================
+main program
+==================
+
+main = () => {}
+
+---------------------
+
+(source_file
+  (assignment
+    (identifier)
+    (abstraction
+      (parameters)
+      (block))))

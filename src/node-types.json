@@ -66,6 +66,10 @@
         "named": true
       },
       {
+        "type": "annotated_expression",
+        "named": true
+      },
+      {
         "type": "application",
         "named": true
       },
@@ -349,6 +353,32 @@
         "types": [
           {
             "type": "type_parameters",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "annotated_expression",
+    "named": true,
+    "fields": {
+      "expression": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "_expression",
+            "named": true
+          }
+        ]
+      },
+      "type": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "_type",
             "named": true
           }
         ]

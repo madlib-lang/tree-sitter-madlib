@@ -1,4 +1,20 @@
 // strings
-x = "abc"
-// chars
-y = 'xyz'
+a = "abc"
+// char
+b = 'x'
+c = '\n'
+// numbers
+d = 1
+e = 2.2
+f = 3_b
+// boolean
+g = true
+h = false
+// records
+emptyRecord = {}
+inlineRecord = { a, b, c }
+constructedRecord = { d: d, e: e + 1, f: f / f }
+// tuples
+inline = #["key", "value"]
+inlineTuple = #[a, b, c]
+mixedTuple = #["yo", d, e, f]

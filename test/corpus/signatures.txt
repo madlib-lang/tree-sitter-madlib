@@ -1,0 +1,189 @@
+==================
+assignment with annotation
+==================
+
+f :: Integer
+f = 100
+
+---------------------
+
+(source_file
+  (type_annotation
+    (identifier)
+    (type_identifier))
+  (assignment
+    (identifier)
+    (number)))
+
+==================
+assignment with inline annotation
+==================
+
+f = (100 :: Integer)
+
+---------------------
+
+(source_file
+  (assignment
+    (identifier)
+    (annotated_expression
+      (number)
+      (type_identifier))))
+
+==================
+function with asshole annotation
+==================
+
+x = ((a, b, c) => a / b / c :: Float -> Float -> Float -> Float)
+
+---------------------
+
+
+(source_file
+  (assignment
+    (identifier)
+    (annotated_expression
+      (abstraction
+        (parameters
+          (identifier)
+          (identifier)
+          (identifier))
+        (binary_expression
+          (binary_expression
+            (identifier)
+            (identifier))
+          (identifier)))
+      (function_type
+        (type_identifier)
+        (function_type
+          (type_identifier)
+          (function_type
+            (type_identifier)
+            (type_identifier)))))))
+
+
+==================
+function with literal signature
+==================
+
+f :: Integer -> Integer
+f = (x) => {
+  return x * 2
+}
+
+---------------------
+
+
+(source_file
+  (type_annotation
+    (identifier)
+    (function_type
+      (type_identifier)
+      (type_identifier)))
+  (assignment
+    (identifier)
+    (abstraction
+      (parameters
+        (identifier))
+      (block
+        (return_statement
+          (binary_expression
+            (identifier)
+            (number)))))))
+
+==================
+function with type vars
+==================
+
+f :: String -> a -> String
+f = (msg, x) => {
+  return msg ++ "!!" ++ show(x)
+}
+
+---------------------
+
+(source_file
+  (type_annotation
+    (identifier)
+    (function_type
+      (type_identifier)
+      (function_type
+        (identifier)
+        (type_identifier))))
+  (assignment
+    (identifier)
+    (abstraction
+      (parameters
+        (identifier)
+        (identifier))
+      (block
+        (return_statement
+          (binary_expression
+            (binary_expression
+              (identifier)
+              (string))
+            (application
+              (identifier)
+              (identifier))))))))
+
+==================
+function with type vars and constraint
+==================
+
+f :: (Show a) => String -> a -> String
+f = (msg, x) => {
+  return msg ++ "!!" ++ show(x)
+}
+
+---------------------
+
+(source_file
+  (type_annotation
+    (identifier)
+    (type_constraints
+      (type_application
+        (type_identifier)
+        (identifier)))
+    (function_type
+      (type_identifier)
+      (function_type
+        (identifier)
+        (type_identifier))))
+  (assignment
+    (identifier)
+    (abstraction
+      (parameters
+        (identifier)
+        (identifier))
+      (block
+        (return_statement
+          (binary_expression
+            (binary_expression
+              (identifier)
+              (string))
+            (application
+              (identifier)
+              (identifier))))))))
+==================
+inline annotation with Maybe
+==================
+
+import type { Maybe } from "Maybe"
+
+f = (Nothing :: Maybe Integer)
+
+---------------------
+
+(source_file
+  (import_declaration
+    (import_list
+      (type_identifier))
+    (string))
+  (assignment
+    (identifier)
+    (annotated_expression
+      (type_identifier)
+      (type_application
+        (type_identifier)
+        (type_identifier)))))
+
