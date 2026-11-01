@@ -1,4 +1,28 @@
 ==================
+nospacemath
+==================
+
+gogo = (x) => -1*(x-1)--x
+
+---------------------
+
+(source_file
+  (assignment
+    (identifier)
+    (abstraction
+      (parameters
+        (identifier))
+      (binary_expression
+        (binary_expression
+          (number)
+          (parenthesized_expression
+            (binary_expression
+              (identifier)
+              (number))))
+        (unary_expression
+          (identifier))))))
+
+==================
 math with subtraction of a negative
 ==================
 

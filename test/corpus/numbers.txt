@@ -1,0 +1,81 @@
+==================
+numbers
+==================
+
+a = 1
+b = 1_f
+c = 1.1_f
+d = 1_b
+// e = 2.2_b
+// f = 3.3_s
+f = 3_s
+// g = 2e3
+h = -1
+// i = -2_b
+j = -2.2_f
+k = -3_s
+
+---------------------
+
+(source_file
+  (assignment
+    (identifier)
+    (number))
+  (assignment
+    (identifier)
+    (number))
+  (assignment
+    (identifier)
+    (number))
+  (assignment
+    (identifier)
+    (number))
+  (line_comment)
+  (line_comment)
+  (assignment
+    (identifier)
+    (number))
+  (line_comment)
+  (assignment
+    (identifier)
+    (number))
+  (line_comment)
+  (assignment
+    (identifier)
+    (number))
+  (assignment
+    (identifier)
+    (number)))
+
+==================
+no fractional bytes
+:error
+==================
+
+e = 2.2_b
+---------------------
+
+==================
+no fractional shorts
+:error
+==================
+
+f = 3.3_s
+---------------------
+
+==================
+scientific no-tation
+:error
+==================
+
+g = 2e3
+---------------------
+
+==================
+no negative bytes (all food is good food)
+:error
+==================
+
+i = -2_b
+---------------------
+
