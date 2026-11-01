@@ -428,6 +428,10 @@
             "named": true
           },
           {
+            "type": "record_pattern",
+            "named": true
+          },
+          {
             "type": "type_identifier",
             "named": true
           }
@@ -546,7 +550,11 @@
         "required": true,
         "types": [
           {
-            "type": "_pattern",
+            "type": "identifier",
+            "named": true
+          },
+          {
+            "type": "wildcard",
             "named": true
           }
         ]

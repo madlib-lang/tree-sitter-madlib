@@ -1,7 +1,9 @@
+"where" @keyword
+"return" @keyword
+"do" @keyword
+"pipe" @keyword
 (line_comment) @comment
 (block_comment) @comment
-(quoted_string) @string
+(string) @string
 (number) @number
-(date) @number
-(attribute) @keyword
-(keyword) @type
+(_type) @type

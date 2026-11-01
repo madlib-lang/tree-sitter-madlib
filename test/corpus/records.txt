@@ -59,4 +59,23 @@ myStuff = { drawer: ["junk"], box: ["pen"], clean: false }
 
 ---------------------
 
-(source_file)
+(source_file
+  (assignment
+    (identifier)
+    (record
+      (field
+        (identifier)
+        (list
+          (string)))
+      (field
+        (identifier)
+        (list
+          (string)))
+      (field
+        (identifier)
+        (boolean))))
+  (assignment
+    (record_pattern
+      (identifier)
+      (identifier))
+    (identifier)))

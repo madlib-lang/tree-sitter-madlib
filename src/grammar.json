@@ -1343,6 +1343,10 @@
             "members": [
               {
                 "type": "SYMBOL",
+                "name": "record_pattern"
+              },
+              {
+                "type": "SYMBOL",
                 "name": "identifier"
               },
               {
@@ -1894,6 +1898,19 @@
         }
       ]
     },
+    "_bind_pattern": {
+      "type": "CHOICE",
+      "members": [
+        {
+          "type": "SYMBOL",
+          "name": "wildcard"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "identifier"
+        }
+      ]
+    },
     "bind": {
       "type": "SEQ",
       "members": [
@@ -1902,7 +1919,7 @@
           "name": "name",
           "content": {
             "type": "SYMBOL",
-            "name": "_pattern"
+            "name": "_bind_pattern"
           }
         },
         {

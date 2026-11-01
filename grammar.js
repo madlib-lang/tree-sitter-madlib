@@ -260,7 +260,10 @@ module.exports = grammar({
 
     assignment: ($) =>
       seq(
-        field("name", choice($.identifier, $.type_identifier)),
+        field(
+          "name",
+          choice($.record_pattern, $.identifier, $.type_identifier),
+        ),
         "=",
         field("value", $._expression),
       ),
@@ -372,8 +375,9 @@ module.exports = grammar({
       ),
 
     // do { _ <- Test.assertEquals(a, b) \n return {} }
+    _bind_pattern: ($) => choice($.wildcard, $.identifier),
     bind: ($) =>
-      seq(field("name", $._pattern), "<-", field("value", $._expression)),
+      seq(field("name", $._bind_pattern), "<-", field("value", $._expression)),
 
     binary_expression: ($) =>
       choice(
