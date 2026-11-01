@@ -729,6 +729,32 @@
     }
   },
   {
+    "type": "explicit_where",
+    "named": true,
+    "fields": {
+      "subject": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "_expression",
+            "named": true
+          }
+        ]
+      }
+    },
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "where_arm",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
     "type": "export_declaration",
     "named": true,
     "fields": {},
@@ -918,6 +944,21 @@
           }
         ]
       }
+    }
+  },
+  {
+    "type": "implicit_where",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "where_arm",
+          "named": true
+        }
+      ]
     }
   },
   {
@@ -1672,6 +1713,10 @@
             "named": true
           },
           {
+            "type": "qualified_type",
+            "named": true
+          },
+          {
             "type": "type_identifier",
             "named": true
           }
@@ -1824,24 +1869,17 @@
   {
     "type": "where_expression",
     "named": true,
-    "fields": {
-      "subject": {
-        "multiple": false,
-        "required": true,
-        "types": [
-          {
-            "type": "_expression",
-            "named": true
-          }
-        ]
-      }
-    },
+    "fields": {},
     "children": {
-      "multiple": true,
-      "required": false,
+      "multiple": false,
+      "required": true,
       "types": [
         {
-          "type": "where_arm",
+          "type": "explicit_where",
+          "named": true
+        },
+        {
+          "type": "implicit_where",
           "named": true
         }
       ]

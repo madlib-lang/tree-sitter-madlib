@@ -74,7 +74,9 @@ module.exports = grammar({
     interface_body: ($) => braced($, $.type_annotation),
     instance_body: ($) => braced($, $.assignment),
     do_expression: ($) => seq("do", braced($, choice($.bind, $._statement))),
-    where_expression: ($) =>
+    where_expression: ($) => choice($.implicit_where, $.explicit_where),
+    implicit_where: ($) => seq("where", braced($, $.where_arm)),
+    explicit_where: ($) =>
       seq(
         "where",
         "(",
@@ -110,22 +112,7 @@ module.exports = grammar({
         $.target_block,
         $.expression_statement,
       ),
-    export_declaration: ($) =>
-      seq(
-        "export",
-        $._declaration,
-        // choice(
-        //   $.assignment,
-        //   $.type_annotation,
-        //   $.type_declaration,
-        //   $.alias_declaration,
-        //   $.interface_declaration,
-        //   $.instance_declaration,
-        //   $.export_type_reference, // export type Comparison
-        //   $.identifier, // export eq / export gt / export le
-        //   $.type_identifier, // export LT / export EQ / export GT
-        // ),
-      ),
+    export_declaration: ($) => seq("export", $._declaration),
     export_type_reference: ($) => seq("type", field("name", $.type_identifier)),
 
     // ---------- imports ----------
@@ -234,7 +221,10 @@ module.exports = grammar({
     type_application: ($) =>
       prec.left(
         seq(
-          field("name", choice($.type_identifier, $.identifier)),
+          field(
+            "name",
+            choice($.qualified_type, $.type_identifier, $.identifier),
+          ),
           repeat1(field("argument", $._type_atom)),
         ),
       ),

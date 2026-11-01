@@ -40,3 +40,15 @@ import type { Maybe } from "Maybe"
       (type_identifier))
     (string)))
 
+==================
+qualified type in signature
+==================
+
+import type M from "Maybe"
+
+orElse :: a -> M.Maybe a -> a
+orElse = (e, v) => v ?? e
+
+---------------------
+
+(source_file_fails_to_parse)
