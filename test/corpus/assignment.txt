@@ -8,7 +8,6 @@ short = 5_s
 byte = 5_b
 
 ---------------------
-
 (source_file
   (assignment
     (identifier)
@@ -19,13 +18,9 @@ byte = 5_b
   (assignment
     (identifier)
     (number))
-  (expression_statement
-    (identifier))
   (assignment
     (identifier)
-    (number))
-  (expression_statement
-    (identifier)))
+    (number)))
 
 ==================
 assignment: string

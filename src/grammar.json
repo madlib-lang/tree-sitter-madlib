@@ -28,16 +28,8 @@
                 "name": "_declaration"
               },
               {
-                "type": "CHOICE",
-                "members": [
-                  {
-                    "type": "SYMBOL",
-                    "name": "_newlines"
-                  },
-                  {
-                    "type": "BLANK"
-                  }
-                ]
+                "type": "SYMBOL",
+                "name": "_newlines"
               }
             ]
           }
@@ -445,45 +437,8 @@
           "value": "export"
         },
         {
-          "type": "CHOICE",
-          "members": [
-            {
-              "type": "SYMBOL",
-              "name": "assignment"
-            },
-            {
-              "type": "SYMBOL",
-              "name": "type_annotation"
-            },
-            {
-              "type": "SYMBOL",
-              "name": "type_declaration"
-            },
-            {
-              "type": "SYMBOL",
-              "name": "alias_declaration"
-            },
-            {
-              "type": "SYMBOL",
-              "name": "interface_declaration"
-            },
-            {
-              "type": "SYMBOL",
-              "name": "instance_declaration"
-            },
-            {
-              "type": "SYMBOL",
-              "name": "export_type_reference"
-            },
-            {
-              "type": "SYMBOL",
-              "name": "identifier"
-            },
-            {
-              "type": "SYMBOL",
-              "name": "type_identifier"
-            }
-          ]
+          "type": "SYMBOL",
+          "name": "_declaration"
         }
       ]
     },
@@ -3500,7 +3455,7 @@
     },
     "number": {
       "type": "PATTERN",
-      "value": "-?\\d+(\\.\\d+)?([eE][+-]?\\d+)?"
+      "value": "\\d+_b|-?\\d+_s|-?\\d+(\\.\\d+)?_f|-?\\d+(\\.\\d+)?"
     },
     "boolean": {
       "type": "CHOICE",

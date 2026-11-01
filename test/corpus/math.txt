@@ -1,0 +1,59 @@
+==================
+math with subtraction of a negative
+==================
+
+gogo = (x) => -1 * (-2 * x) - -x
+
+---------------------
+
+(source_file
+  (assignment
+    (identifier)
+    (abstraction
+      (parameters
+        (identifier))
+      (binary_expression
+        (binary_expression
+          (number)
+          (parenthesized_expression
+            (binary_expression
+              (number)
+              (identifier))))
+        (unary_expression
+          (identifier))))))
+
+==================
+math with subtraction of a negative and number literal suffixes
+==================
+
+import Short from "Short"
+gogo = (x) => -1.24_f * Short.toFloat(-2_s * x) - -Short.toFloat(x)
+
+---------------------
+
+(source_file
+  (import_declaration
+    (namespace
+      (type_identifier))
+    (string))
+  (assignment
+    (identifier)
+    (abstraction
+      (parameters
+        (identifier))
+      (binary_expression
+        (binary_expression
+          (number)
+          (application
+            (access
+              (type_identifier)
+              (identifier))
+            (binary_expression
+              (number)
+              (identifier))))
+        (unary_expression
+          (application
+            (access
+              (type_identifier)
+              (identifier))
+            (identifier)))))))

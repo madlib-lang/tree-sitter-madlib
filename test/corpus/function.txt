@@ -181,6 +181,44 @@ reallyCool = cool($, "nice")
       (placeholder)
       (string))))
 
+
+==================
+constructs with newlines
+==================
+
+type AstronomicallyLongAndImportant = A
+type AstrologicallyLongAndContextuallyRelevant = B
+important :: AstronomicallyLongAndImportant
+  -> AstrologicallyLongAndContextuallyRelevant
+  -> AstrologicallyLongAndContextuallyRelevant
+important = (a, b) => b
+
+---------------------
+
+(source_file
+  (type_declaration
+    (type_identifier)
+    (constructor
+      (type_identifier)))
+  (type_declaration
+    (type_identifier)
+    (constructor
+      (type_identifier)))
+  (type_annotation
+    (identifier)
+    (function_type
+      (type_identifier)
+      (function_type
+        (type_identifier)
+        (type_identifier))))
+  (assignment
+    (identifier)
+    (abstraction
+      (parameters
+        (identifier)
+        (identifier))
+      (identifier))))
+
 ==================
 binary type constructor in a function
 ==================
@@ -190,4 +228,29 @@ cool = (d, e) => map(mappend(d), e)
 
 ---------------------
 
-(bad)
+(source_file
+  (type_annotation
+    (identifier)
+    (function_type
+      (type_identifier)
+      (function_type
+        (type_application
+          (type_identifier)
+          (type_identifier)
+          (type_identifier))
+        (type_application
+          (type_identifier)
+          (type_identifier)
+          (type_identifier)))))
+  (assignment
+    (identifier)
+    (abstraction
+      (parameters
+        (identifier)
+        (identifier))
+      (application
+        (identifier)
+        (application
+          (identifier)
+          (identifier))
+        (identifier)))))

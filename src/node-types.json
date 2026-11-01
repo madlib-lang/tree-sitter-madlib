@@ -737,58 +737,10 @@
       "required": true,
       "types": [
         {
-          "type": "alias_declaration",
-          "named": true
-        },
-        {
-          "type": "assignment",
-          "named": true
-        },
-        {
-          "type": "export_type_reference",
-          "named": true
-        },
-        {
-          "type": "identifier",
-          "named": true
-        },
-        {
-          "type": "instance_declaration",
-          "named": true
-        },
-        {
-          "type": "interface_declaration",
-          "named": true
-        },
-        {
-          "type": "type_annotation",
-          "named": true
-        },
-        {
-          "type": "type_declaration",
-          "named": true
-        },
-        {
-          "type": "type_identifier",
+          "type": "_declaration",
           "named": true
         }
       ]
-    }
-  },
-  {
-    "type": "export_type_reference",
-    "named": true,
-    "fields": {
-      "name": {
-        "multiple": false,
-        "required": true,
-        "types": [
-          {
-            "type": "type_identifier",
-            "named": true
-          }
-        ]
-      }
     }
   },
   {

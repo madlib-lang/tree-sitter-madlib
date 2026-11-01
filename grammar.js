@@ -68,10 +68,7 @@ module.exports = grammar({
 
   rules: {
     source_file: ($) =>
-      seq(
-        optional($._newlines),
-        repeat(seq($._declaration, optional($._newlines))),
-      ),
+      seq(optional($._newlines), repeat(seq($._declaration, $._newlines))),
     _newlines: ($) => repeat1($._newline),
     block: ($) => braced($, $._statement),
     interface_body: ($) => braced($, $.type_annotation),
@@ -116,17 +113,18 @@ module.exports = grammar({
     export_declaration: ($) =>
       seq(
         "export",
-        choice(
-          $.assignment,
-          $.type_annotation,
-          $.type_declaration,
-          $.alias_declaration,
-          $.interface_declaration,
-          $.instance_declaration,
-          $.export_type_reference, // export type Comparison
-          $.identifier, // export eq / export gt / export le
-          $.type_identifier, // export LT / export EQ / export GT
-        ),
+        $._declaration,
+        // choice(
+        //   $.assignment,
+        //   $.type_annotation,
+        //   $.type_declaration,
+        //   $.alias_declaration,
+        //   $.interface_declaration,
+        //   $.instance_declaration,
+        //   $.export_type_reference, // export type Comparison
+        //   $.identifier, // export eq / export gt / export le
+        //   $.type_identifier, // export LT / export EQ / export GT
+        // ),
       ),
     export_type_reference: ($) => seq("type", field("name", $.type_identifier)),
 
@@ -521,7 +519,8 @@ module.exports = grammar({
     // ---------- lexical ----------
     identifier: (_) => /[a-z_]\w*/,
     type_identifier: (_) => /[A-Z]\w*/,
-    number: (_) => /-?\d+(\.\d+)?([eE][+-]?\d+)?/,
+    // number: (_) => /-?\d+(\.\d+)?([eE][+-]?\d+)?/,
+    number: (_) => /\d+_b|-?\d+_s|-?\d+(\.\d+)?_f|-?\d+(\.\d+)?/,
     boolean: (_) => choice("true", "false"),
     char: (_) => /'([^'\\]|\\.)'/,
     string: (_) => /"([^"\\]|\\.)*"/,
