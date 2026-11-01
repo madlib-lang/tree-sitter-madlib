@@ -12,7 +12,7 @@ str = "string"
   (string)))
 
 ===
-Single-quoted string
+char type
 ===
 
 chars = 'c'
@@ -26,3 +26,18 @@ chars = 'c'
   )
 )
 
+===
+interpolated string
+===
+
+`whatever${you}want`
+
+---
+
+(source_file
+  (expression_statement
+    (template_string
+      (template_chars)
+      (interpolation
+        (identifier))
+      (template_chars))))

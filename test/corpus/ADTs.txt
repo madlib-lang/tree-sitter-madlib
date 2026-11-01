@@ -1,0 +1,199 @@
+==================
+a singleton constructor
+==================
+
+type Yo = Yo
+
+---------------------
+
+(source_file
+  (type_declaration
+    (type_identifier)
+    (constructor
+      (type_identifier))))
+
+==================
+multiple singleton type constructors
+==================
+
+type Well = Sure | IGuess
+
+---------------------
+
+(source_file
+  (type_declaration
+    (type_identifier)
+    (constructor
+      (type_identifier))
+    (constructor
+      (type_identifier))))
+
+==================
+exported type
+==================
+
+export type Science = Science
+
+---------------------
+
+(source_file
+  (export_declaration
+    (type_declaration
+      (type_identifier)
+      (constructor
+        (type_identifier)))))
+
+==================
+exported type with contained values
+==================
+
+export type Science = BadScience(String) | GoodScience(Boolean)
+
+---------------------
+
+(source_file
+  (export_declaration
+    (type_declaration
+      (type_identifier)
+      (constructor
+        (type_identifier)
+        (type_identifier))
+      (constructor
+        (type_identifier)
+        (type_identifier)))))
+
+==================
+exported type with type variable
+==================
+
+export type Science e a = BadScience(e) | GoodScience(a)
+
+---------------------
+
+(source_file
+  (export_declaration
+    (type_declaration
+      (type_identifier)
+      (type_parameters
+        (identifier)
+        (identifier))
+      (constructor
+        (type_identifier)
+        (identifier))
+      (constructor
+        (type_identifier)
+        (identifier)))))
+
+==================
+exported type with multiple contained values
+==================
+
+export type Science e a = Science(e, a, Boolean, String, List String)
+
+---------------------
+
+(source_file
+  (export_declaration
+    (type_declaration
+      (type_identifier)
+      (type_parameters
+        (identifier)
+        (identifier))
+      (constructor
+        (type_identifier)
+        (identifier)
+        (identifier)
+        (type_identifier)
+        (type_identifier)
+        (type_application
+          (type_identifier)
+          (type_identifier))))))
+
+
+==================
+exported type across multiple newlines
+==================
+
+
+export type AssertionError
+  = AssertionError(String, String)
+  | Error(String)
+  | ErrorWithMessage(String)
+  | NotImplemented
+
+---------------------
+
+(source_file
+  (export_declaration
+    (type_declaration
+      (type_identifier)
+      (constructor
+        (type_identifier)
+        (type_identifier)
+        (type_identifier))
+      (constructor
+        (type_identifier)
+        (type_identifier))
+      (constructor
+        (type_identifier)
+        (type_identifier))
+      (constructor
+        (type_identifier)))))
+
+==================
+binary type constructors contained
+==================
+
+export type BinaryStar e a = Star(Wish String String, Wish e a)
+
+---------------------
+
+(source_file
+  (export_declaration
+    (type_declaration
+      (type_identifier)
+      (type_parameters
+        (identifier)
+        (identifier))
+      (constructor
+        (type_identifier)
+        (type_application
+          (type_identifier)
+          (type_identifier)
+          (type_identifier))
+        (type_application
+          (type_identifier)
+          (identifier)
+          (identifier))))))
+
+==================
+function wrapping
+==================
+
+export type BinaryStar e a = Star(Wish String String -> Wish e a -> Wish String a)
+
+---------------------
+
+(source_file
+  (export_declaration
+    (type_declaration
+      (type_identifier)
+      (type_parameters
+        (identifier)
+        (identifier))
+      (constructor
+        (type_identifier)
+        (function_type
+          (type_application
+            (type_identifier)
+            (type_identifier)
+            (type_identifier))
+          (function_type
+            (type_application
+              (type_identifier)
+              (identifier)
+              (identifier))
+            (type_application
+              (type_identifier)
+              (type_identifier)
+              (identifier))))))))

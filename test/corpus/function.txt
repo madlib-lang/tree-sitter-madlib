@@ -84,4 +84,110 @@ f = (x) => ({ x })
       parameters: (parameters (identifier))
       body: (parenthesized_expression (record (identifier))))))
 
+==================
+function with signature
+==================
 
+f :: Integer -> Integer
+f = (x) => x * 2
+
+---------------------
+
+(source_file
+  (type_annotation
+    (identifier)
+    (function_type
+      (type_identifier)
+      (type_identifier)))
+  (assignment
+    (identifier)
+    (abstraction
+      (parameters
+        (identifier))
+      (binary_expression
+        (identifier)
+        (number)))))
+
+==================
+function with constraint
+==================
+
+f :: Show a => a -> a
+f = (x) => IO.pTrace("what?", x)
+
+---------------------
+
+(source_file
+  (type_annotation
+    (identifier)
+    (type_constraints
+      (type_application
+        (type_identifier)
+        (identifier)))
+    (function_type
+      (identifier)
+      (identifier)))
+  (assignment
+    (identifier)
+    (abstraction
+      (parameters
+        (identifier))
+      (application
+        (access
+          (type_identifier)
+          (identifier))
+        (string)
+        (identifier)))))
+
+==================
+function with partial application
+==================
+
+cool :: Show a => String -> a -> a
+cool = (k, x) => IO.pTrace(k, x)
+
+reallyCool = cool($, "nice")
+
+---------------------
+
+(source_file
+  (type_annotation
+    (identifier)
+    (type_constraints
+      (type_application
+        (type_identifier)
+        (identifier)))
+    (function_type
+      (type_identifier)
+      (function_type
+        (identifier)
+        (identifier))))
+  (assignment
+    (identifier)
+    (abstraction
+      (parameters
+        (identifier)
+        (identifier))
+      (application
+        (access
+          (type_identifier)
+          (identifier))
+        (identifier)
+        (identifier))))
+  (assignment
+    (identifier)
+    (application
+      (identifier)
+      (placeholder)
+      (string))))
+
+==================
+binary type constructor in a function
+==================
+
+cool :: String -> Wish String String -> Wish String String
+cool = (d, e) => map(mappend(d), e)
+
+---------------------
+
+(bad)
