@@ -8,9 +8,10 @@ import IO from "IO"
 
 (source_file
   (import_declaration
-    (namespace
-      (type_identifier))
-    (string)))
+    (import_module_declaration
+      (namespace
+        (type_identifier))
+      (string))))
 
 ==================
 explicitly destructured imports
@@ -22,9 +23,10 @@ import { pTrace } from "IO"
 
 (source_file
   (import_declaration
-    (import_list
-      (identifier))
-    (string)))
+    (import_module_declaration
+      (import_list
+        (identifier))
+      (string))))
 
 ==================
 explicitly destructured type imports
@@ -36,19 +38,91 @@ import type { Maybe } from "Maybe"
 
 (source_file
   (import_declaration
-    (import_list
-      (type_identifier))
-    (string)))
+    (import_type_declaration
+      (import_list
+        (type_identifier))
+      (string))))
+==================
+qualified type with explicit type
+==================
+
+import M from "Maybe"
+
+orElse :: M.Maybe Float
+orElse = M.Just(2.2_f)
+
+---------------------
+(source_file
+  (import_declaration
+    (import_module_declaration
+      (namespace
+        (type_identifier))
+      (string)))
+  (type_annotation
+    (identifier)
+    (type_application
+      (qualified_type
+        (type_identifier)
+        (type_identifier))
+      (type_identifier)))
+  (assignment
+    (identifier)
+    (application
+      (access
+        (type_identifier)
+        (type_identifier))
+      (number))))
 
 ==================
-qualified type in signature
+qualified binary type with explicit type
+==================
+
+import E from "Either"
+
+orElse :: E.Either String Float
+orElse = E.Right(2.2_f)
+
+---------------------
+(source_file
+  (import_declaration
+    (import_module_declaration
+      (namespace
+        (type_identifier))
+      (string)))
+  (type_annotation
+    (identifier)
+    (type_application
+      (qualified_type
+        (type_identifier)
+        (type_identifier))
+      (type_identifier)
+      (type_identifier)))
+  (assignment
+    (identifier)
+    (application
+      (access
+        (type_identifier)
+        (type_identifier))
+      (number))))
+
+==================
+import type without braces
+:error
 ==================
 
 import type M from "Maybe"
 
-orElse :: a -> M.Maybe a -> a
-orElse = (e, v) => v ?? e
-
 ---------------------
 
-(source_file_fails_to_parse)
+==================
+import interfaces
+==================
+
+import {} from "Json"
+
+---------------------
+(source_file
+  (import_declaration
+    (import_module_declaration
+      (import_list)
+      (string))))

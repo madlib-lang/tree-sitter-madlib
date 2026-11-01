@@ -119,12 +119,20 @@ module.exports = grammar({
     // import IO from "IO"
     // import { fn } from "./File"
     // import type { Maybe } from "Maybe"
-
     import_declaration: ($) =>
+      choice($.import_module_declaration, $.import_type_declaration),
+    import_module_declaration: ($) =>
       seq(
         "import",
-        optional("type"),
         field("source", choice($.namespace, $.import_list)),
+        "from",
+        field("path", $.string),
+      ),
+    import_type_declaration: ($) =>
+      seq(
+        "import",
+        "type",
+        field("source", $.import_list),
         "from",
         field("path", $.string),
       ),

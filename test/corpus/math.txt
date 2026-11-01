@@ -81,9 +81,10 @@ gogo = (x) => -1.24_f * Short.toFloat(-2_s * x) - -Short.toFloat(x)
 
 (source_file
   (import_declaration
-    (namespace
-      (type_identifier))
-    (string))
+    (import_module_declaration
+      (namespace
+        (type_identifier))
+      (string)))
   (assignment
     (identifier)
     (abstraction

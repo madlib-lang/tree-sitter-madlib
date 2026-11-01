@@ -176,9 +176,10 @@ f = (Nothing :: Maybe Integer)
 
 (source_file
   (import_declaration
-    (import_list
-      (type_identifier))
-    (string))
+    (import_type_declaration
+      (import_list
+        (type_identifier))
+      (string)))
   (assignment
     (identifier)
     (annotated_expression
