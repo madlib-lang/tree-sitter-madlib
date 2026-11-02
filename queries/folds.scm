@@ -1,0 +1,20 @@
+[
+  (block)
+  (record)
+  (record_type)
+  (record_pattern)
+  (list)
+  (tuple)
+  (import_list)
+  (interface_body)
+  (instance_body)
+  (implicit_where)
+  (explicit_where)
+  (do_expression)
+  (type_declaration)
+  (target_block)
+  (template_string)
+  (foreign_fence)
+  (block_comment)
+] @fold
+

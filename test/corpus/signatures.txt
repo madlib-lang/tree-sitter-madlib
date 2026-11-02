@@ -188,3 +188,27 @@ f = (Nothing :: Maybe Integer)
         (type_identifier)
         (type_identifier)))))
 
+==================
+import type of lowercase constructor
+==================
+
+import type { Maybe } from "Maybe"
+
+f = (Nothing :: Maybe Integer)
+
+---------------------
+
+(source_file
+  (import_declaration
+    (import_type_declaration
+      (import_list
+        (type_identifier))
+      (string)))
+  (assignment
+    (identifier)
+    (annotated_expression
+      (type_identifier)
+      (type_application
+        (type_identifier)
+        (type_identifier)))))
+
